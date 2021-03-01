@@ -236,6 +236,7 @@ public class View extends javax.swing.JFrame {
 
         try {
             copiedText = jTextArea1.getSelectedText();
+            jTextArea1.copy();
         }catch(Exception e){
             System.out.println(e);
         }
@@ -250,6 +251,7 @@ public class View extends javax.swing.JFrame {
         // TODO add your handling code here:
         try {
             copiedText = jTextArea1.getSelectedText();
+            jTextArea1.cut();
             jTextArea1.setText(jTextArea1.getText().replace(jTextArea1.getSelectedText(), ""));
             System.out.println(copiedText);
         }catch(Exception e){
@@ -263,9 +265,11 @@ public class View extends javax.swing.JFrame {
      */
     private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
         try {
-            jTextArea1.setText(jTextArea1.getText().replace(jTextArea1.getSelectedText(), copiedText));
+            jTextArea1.paste();
+            //jTextArea1.setText(jTextArea1.getText().replace(jTextArea1.getSelectedText(), copiedText));
         }catch(Exception e){
-            jTextArea1.insert(copiedText, jTextArea1.getCaretPosition());
+            jTextArea1.paste();
+            //jTextArea1.insert(copiedText, jTextArea1.getCaretPosition());
         }
     }//GEN-LAST:event_jMenuItem6ActionPerformed
 
