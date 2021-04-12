@@ -16,17 +16,20 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  * and open the template in the editor.
  */
 
+import java.awt.event.KeyEvent;
+
 /**
  *
  * @author cezz_
  */
 public class View extends javax.swing.JFrame {
-    
     File archivo = null;
     String ruta = null;
 
     String nombre = null;
     private Object VARIABLE_DEL_TEXT_AREA;
+    String copiedText = "";
+
     /**
      * Creates new form View
      */
@@ -73,6 +76,28 @@ public class View extends javax.swing.JFrame {
 
         jTextArea1.setColumns(20);
         jTextArea1.setRows(5);
+        jTextArea1.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                jTextArea1FocusGained(evt);
+            }
+        });
+        jTextArea1.addInputMethodListener(new java.awt.event.InputMethodListener() {
+            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
+            }
+            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
+                jTextArea1InputMethodTextChanged(evt);
+            }
+        });
+        jTextArea1.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                jTextArea1PropertyChange(evt);
+            }
+        });
+        jTextArea1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jTextArea1KeyPressed(evt);
+            }
+        });
         jScrollPane1.setViewportView(jTextArea1);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -160,12 +185,27 @@ public class View extends javax.swing.JFrame {
         jMenu2.setText("Editar");
 
         jMenuItem5.setText("Copiar");
+        jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem5ActionPerformed(evt);
+            }
+        });
         jMenu2.add(jMenuItem5);
 
         jMenuItem6.setText("Pegar");
+        jMenuItem6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem6ActionPerformed(evt);
+            }
+        });
         jMenu2.add(jMenuItem6);
 
         jMenuItem7.setText("Cortar");
+        jMenuItem7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem7ActionPerformed(evt);
+            }
+        });
         jMenu2.add(jMenuItem7);
 
         jMenuBar1.add(jMenu2);
@@ -174,6 +214,11 @@ public class View extends javax.swing.JFrame {
         jMenuBar1.add(jMenu3);
 
         jMenu4.setText("Compilar");
+        jMenu4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenu4ActionPerformed(evt);
+            }
+        });
         jMenuBar1.add(jMenu4);
 
         setJMenuBar(jMenuBar1);
@@ -324,6 +369,78 @@ public class View extends javax.swing.JFrame {
             System.out.println("No se ha seleccionado ningún fichero");
         }  // TODO add your handling code here:
     }//GEN-LAST:event_jMenuItem3ActionPerformed
+
+    private void jMenu4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu4ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jMenu4ActionPerformed
+
+    private void jTextArea1FocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTextArea1FocusGained
+        // TODO add your handling code here:
+         //System.out.println("jTextArea1FocusGained  atencion ganada");
+         //String code = jTextArea1.getText();
+         //System.out.println("code_: " + code);
+    }//GEN-LAST:event_jTextArea1FocusGained
+
+    private void jTextArea1InputMethodTextChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_jTextArea1InputMethodTextChanged
+
+    }//GEN-LAST:event_jTextArea1InputMethodTextChanged
+
+    private void jTextArea1PropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_jTextArea1PropertyChange
+
+    }//GEN-LAST:event_jTextArea1PropertyChange
+
+    private void jTextArea1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextArea1KeyPressed
+        //System.out.println("jTextArea1KeyPressed  tecla presionada alv carnal");
+        //String code = jTextArea1.getText();
+         //System.out.println("code_: " + code);
+    }//GEN-LAST:event_jTextArea1KeyPressed
+
+    /**
+     * 
+     * Copy button
+     * @param evt 
+     */
+    private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
+
+        try {
+            copiedText = jTextArea1.getSelectedText();
+            jTextArea1.copy();
+        }catch(Exception e){
+            System.out.println(e);
+        }
+        
+    }//GEN-LAST:event_jMenuItem5ActionPerformed
+
+    /**
+     * Cut button
+     * @param evt 
+     */
+    private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem7ActionPerformed
+        // TODO add your handling code here:
+        try {
+            copiedText = jTextArea1.getSelectedText();
+            jTextArea1.cut();
+            jTextArea1.setText(jTextArea1.getText().replace(jTextArea1.getSelectedText(), ""));
+            System.out.println(copiedText);
+        }catch(Exception e){
+            System.out.println(e);
+        }
+    }//GEN-LAST:event_jMenuItem7ActionPerformed
+
+    /**
+     * paste button
+     * @param evt 
+     */
+    private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
+        try {
+            jTextArea1.paste();
+            //jTextArea1.setText(jTextArea1.getText().replace(jTextArea1.getSelectedText(), copiedText));
+        }catch(Exception e){
+            jTextArea1.paste();
+            //jTextArea1.insert(copiedText, jTextArea1.getCaretPosition());
+        }
+    }//GEN-LAST:event_jMenuItem6ActionPerformed
+
 
     /**
      * @param args the command line arguments
