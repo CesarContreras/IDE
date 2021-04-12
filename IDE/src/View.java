@@ -1,4 +1,5 @@
 
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -9,6 +10,7 @@ import java.util.Scanner;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.util.HashMap;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -17,24 +19,68 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  */
 
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.swing.SwingUtilities;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
+import javax.swing.text.StyledEditorKit;
 
 /**
  *
  * @author cezz_
  */
-public class View extends javax.swing.JFrame {
-    File archivo = null;
-    String ruta = null;
 
+public class View extends javax.swing.JFrame {
+     ArrayList<Color> colores;
+    File archivo = null;
+    String ruta = null;   
+    String text = "";
+    int offset;
+    Pattern pat;
+    Map <String, SimpleAttributeSet> map = new HashMap<>();
     String nombre = null;
     private Object VARIABLE_DEL_TEXT_AREA;
     String copiedText = "";
-
+   
     /**
      * Creates new form View
      */
     public View() {
+        offset = 0;
+        text = "";
         initComponents();
+        String[] words = {"if", "then", "else", "for", "while", "foreach", "do", "fi", "until", "read", "write",
+        "not", "and", "or", "program"};
+        String[] variables = {"int", "double", "float", "char", "string", "boolean"};
+        StringBuilder sb = new StringBuilder();
+        for(int i=0; i<words.length; i++)
+        {
+            sb.append("("+words[i]+")"+ "|");
+            SimpleAttributeSet sas = new SimpleAttributeSet();
+            StyleConstants.setForeground(sas, Color.red);
+            map.put(words[i], sas);
+        }
+        
+         for(int i=0; i<variables.length; i++)
+        {
+            sb.append("("+variables[i]+")"+ "|");
+            SimpleAttributeSet sas = new SimpleAttributeSet();
+            StyleConstants.setForeground(sas, Color.blue);
+            map.put(variables[i], sas);
+        }
+        sb.deleteCharAt(sb.length()-1);
+        pat = Pattern.compile(sb.toString());
+        jTextPane4.setEditorKit(new StyledEditorKit());
+        jTextPane4.setDocument(new DefaultStyledDocument());
+        jTextPane4.getDocument().addDocumentListener(new ColorDocument());
+       
     }
 
     /**
@@ -46,6 +92,14 @@ public class View extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jScrollPane5 = new javax.swing.JScrollPane();
+        jTextArea5 = new javax.swing.JTextArea();
+        jScrollPane6 = new javax.swing.JScrollPane();
+        jTextPane1 = new javax.swing.JTextPane();
+        jTextPane2 = new javax.swing.JTextPane();
+        jScrollPane7 = new javax.swing.JScrollPane();
+        jScrollPane8 = new javax.swing.JScrollPane();
+        jTextPane3 = new javax.swing.JTextPane();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
         jLabel1 = new javax.swing.JLabel();
@@ -53,14 +107,14 @@ public class View extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         jTextArea2 = new javax.swing.JTextArea();
         jToggleButton2 = new javax.swing.JToggleButton();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        jTextArea3 = new javax.swing.JTextArea();
         jScrollPane4 = new javax.swing.JScrollPane();
         jTextArea4 = new javax.swing.JTextArea();
         jToggleButton3 = new javax.swing.JToggleButton();
         jToggleButton4 = new javax.swing.JToggleButton();
         jToggleButton5 = new javax.swing.JToggleButton();
         jToggleButton6 = new javax.swing.JToggleButton();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTextPane4 = new javax.swing.JTextPane();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem3 = new javax.swing.JMenuItem();
@@ -73,6 +127,14 @@ public class View extends javax.swing.JFrame {
         jMenuItem7 = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
         jMenu4 = new javax.swing.JMenu();
+
+        jTextArea5.setColumns(20);
+        jTextArea5.setRows(5);
+        jScrollPane5.setViewportView(jTextArea5);
+
+        jScrollPane6.setViewportView(jTextPane1);
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jTextArea1.setColumns(20);
         jTextArea1.setRows(5);
@@ -100,8 +162,6 @@ public class View extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(jTextArea1);
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-
         jLabel1.setText("Código a compilar");
 
         jToggleButton1.setText("Errores");
@@ -116,10 +176,6 @@ public class View extends javax.swing.JFrame {
         jScrollPane2.setViewportView(jTextArea2);
 
         jToggleButton2.setText("Resultados");
-
-        jTextArea3.setColumns(20);
-        jTextArea3.setRows(5);
-        jScrollPane3.setViewportView(jTextArea3);
 
         jTextArea4.setColumns(20);
         jTextArea4.setRows(5);
@@ -142,6 +198,8 @@ public class View extends javax.swing.JFrame {
         jToggleButton5.setText("Código Intermedio");
 
         jToggleButton6.setText("Semantico");
+
+        jScrollPane3.setViewportView(jTextPane4);
 
         jMenu1.setText("Archivo");
 
@@ -236,8 +294,8 @@ public class View extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jToggleButton2))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 646, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 635, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 522, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
@@ -249,7 +307,7 @@ public class View extends javax.swing.JFrame {
                                 .addGap(18, 18, 18)
                                 .addComponent(jToggleButton5))))
                     .addComponent(jScrollPane2))
-                .addContainerGap(40, Short.MAX_VALUE))
+                .addContainerGap(29, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -266,7 +324,7 @@ public class View extends javax.swing.JFrame {
                             .addComponent(jToggleButton6))
                         .addGap(14, 14, 14)
                         .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 353, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 392, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 384, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(27, 27, 27)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jToggleButton1)
@@ -278,13 +336,13 @@ public class View extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         
         try
                 {
                     FileWriter GUARDADO=new FileWriter(ruta);
-                    GUARDADO.write(jTextArea3.getText());
+                    GUARDADO.write(jTextPane4.getText());
                     GUARDADO.close(); 
                 }
                 catch(IOException exp)
@@ -308,7 +366,7 @@ public class View extends javax.swing.JFrame {
                 {
                 nombre=MI_ARCHIVO.getSelectedFile().getName();
                 FileWriter GUARDADO=new FileWriter(GUARDAR);
-                GUARDADO.write(jTextArea3.getText());
+                GUARDADO.write(jTextPane4.getText());
                 GUARDADO.close();
                 }
                 }
@@ -320,7 +378,7 @@ public class View extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
-        jTextArea3.setText("");                // TODO add your handling code here:
+       jTextPane4.setText("");                // TODO add your handling code here:
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
     private void jToggleButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton3ActionPerformed
@@ -355,7 +413,7 @@ public class View extends javax.swing.JFrame {
                 while (( linea = br.readLine() ) != null ) {
                     content += linea + "\n";
                 }
-                jTextArea3.setText(content);
+                jTextPane4.setText(content);
               
             } catch (Exception e ) {
                
@@ -403,8 +461,8 @@ public class View extends javax.swing.JFrame {
     private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
 
         try {
-            copiedText = jTextArea1.getSelectedText();
-            jTextArea1.copy();
+            copiedText = jTextPane4.getSelectedText();
+            jTextPane4.copy();
         }catch(Exception e){
             System.out.println(e);
         }
@@ -418,9 +476,9 @@ public class View extends javax.swing.JFrame {
     private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem7ActionPerformed
         // TODO add your handling code here:
         try {
-            copiedText = jTextArea1.getSelectedText();
-            jTextArea1.cut();
-            jTextArea1.setText(jTextArea1.getText().replace(jTextArea1.getSelectedText(), ""));
+            copiedText = jTextPane4.getSelectedText();
+            jTextPane4.cut();
+            jTextPane4.setText(jTextPane4.getText().replace(jTextPane4.getSelectedText(), ""));
             System.out.println(copiedText);
         }catch(Exception e){
             System.out.println(e);
@@ -433,10 +491,10 @@ public class View extends javax.swing.JFrame {
      */
     private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
         try {
-            jTextArea1.paste();
+            jTextPane4.paste();
             //jTextArea1.setText(jTextArea1.getText().replace(jTextArea1.getSelectedText(), copiedText));
         }catch(Exception e){
-            jTextArea1.paste();
+            jTextPane4.paste();
             //jTextArea1.insert(copiedText, jTextArea1.getCaretPosition());
         }
     }//GEN-LAST:event_jMenuItem6ActionPerformed
@@ -476,7 +534,61 @@ public class View extends javax.swing.JFrame {
             }
         });
     }
+    private class ColorDocument implements DocumentListener{
 
+        SimpleAttributeSet black = new SimpleAttributeSet();
+
+
+        ColorDocument()
+        {
+            StyleConstants.setForeground(black, Color.black);
+        }
+
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            SwingUtilities.invokeLater(this::finaAndColor);
+        }
+
+
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            SwingUtilities.invokeLater(this::finaAndColor);
+        }
+
+
+        @Override
+        public void changedUpdate(DocumentEvent arg0) {
+
+        }
+
+        private void finaAndColor()
+        {
+            StyledDocument doc = (StyledDocument) jTextPane4.getDocument();
+            doc.setCharacterAttributes(0,doc.getLength(), black, true);
+
+            Matcher m = pat.matcher(jTextPane4.getText().trim());
+
+            while(m.find())
+            {
+                doc.setCharacterAttributes(m.start()+offset, m.end()+offset, map.get(m.group()), true);
+
+                doc.setCharacterAttributes(m.end(), doc.getLength(), black,true);
+            }
+
+        }
+        
+        private void findOffset()
+        {
+            offset = -1;
+            Pattern pattern = Pattern.compile("\n\r");
+            Matcher m = pattern.matcher(jTextPane4.getText());
+            while(m.find())
+            {
+                offset =offset +1;
+            }
+        }
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     private javax.swing.JMenu jMenu1;
@@ -495,10 +607,18 @@ public class View extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JScrollPane jScrollPane6;
+    private javax.swing.JScrollPane jScrollPane7;
+    private javax.swing.JScrollPane jScrollPane8;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextArea jTextArea2;
-    private javax.swing.JTextArea jTextArea3;
     private javax.swing.JTextArea jTextArea4;
+    private javax.swing.JTextArea jTextArea5;
+    private javax.swing.JTextPane jTextPane1;
+    private javax.swing.JTextPane jTextPane2;
+    private javax.swing.JTextPane jTextPane3;
+    private javax.swing.JTextPane jTextPane4;
     private javax.swing.JToggleButton jToggleButton1;
     private javax.swing.JToggleButton jToggleButton2;
     private javax.swing.JToggleButton jToggleButton3;
